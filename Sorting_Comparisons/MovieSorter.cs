@@ -15,24 +15,35 @@ namespace Sorting_Comparisons
 
         public static List<Movie> SortByTitle(List<Movie> movies)
         {
-            var sortedMovies = movies.OrderBy(movie => RemoveArticles(movie.Title), StringComparer.OrdinalIgnoreCase)
-                                     .ThenBy(movie => movie.Year)
-                                     .ToList();
+            var sortedMovies = movies.OrderBy(movie => movie.Title, new TitleComparer()).ThenBy(movie => movie.Year).ToList();
             return sortedMovies;
         }
 
-        private static string RemoveArticles(string title)
-        {            
-            string[] articles = { "A ", "An ", "The " };
-            foreach (var article in articles)
+        private class TitleComparer : IComparer<string>
+        {
+            private readonly string[] Articles = { "A ", "An ", "The " };
+
+            public int Compare(string x, string y)
             {
-                if (title.StartsWith(article, StringComparison.OrdinalIgnoreCase))
-                {
-                    title = title.Substring(article.Length);
-                    break;
-                }
+                // Remove articles and perform case-insensitive comparison
+                x = RemoveArticles(x);
+                y = RemoveArticles(y);
+
+                return string.Compare(x, y, StringComparison.OrdinalIgnoreCase);
             }
-            return title;
+
+            private string RemoveArticles(string title)
+            {
+                foreach (var article in Articles)
+                {
+                    if (title.StartsWith(article, StringComparison.OrdinalIgnoreCase))
+                    {
+                        title = title.Substring(article.Length);
+                        break;
+                    }
+                }
+                return title;
+            }
         }
     }
 }
